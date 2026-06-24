@@ -44,16 +44,6 @@
   .crop.bl{bottom:var(--pad);left:var(--pad);transform:scaleY(-1);}
   .crop.br{bottom:var(--pad);right:var(--pad);transform:scale(-1,-1);}
 
-  /* ---------- corner brand mark ---------- */
-  .hud{position:fixed;z-index:6;font-size:10.5px;line-height:1.5;letter-spacing:0.14em;
-       text-transform:uppercase;color:var(--muted);pointer-events:none;white-space:nowrap;}
-  .tl-hud{top:calc(var(--pad) + 20px);left:calc(var(--pad) + 20px);}
-  .target{display:inline-block;width:11px;height:11px;border:1px solid currentColor;border-radius:50%;
-          position:relative;vertical-align:-1px;margin-right:6px;}
-  .target::before,.target::after{content:"";position:absolute;background:currentColor;}
-  .target::before{width:1px;height:11px;left:50%;top:-3px;transform:translateX(-50%);}
-  .target::after{height:1px;width:11px;top:50%;left:-3px;transform:translateY(-50%);}
-
   /* ---------- stage / wordmark ---------- */
   .stage{position:fixed;inset:0;display:grid;place-items:center;z-index:4;padding:0 var(--pad);}
   .mark-wrap{position:relative;text-align:center;}
@@ -82,16 +72,6 @@
        font-size:11px;letter-spacing:0.34em;text-transform:uppercase;color:var(--muted);}
   .sub .dot{width:4px;height:4px;background:var(--ink);border-radius:50%;display:inline-block;}
 
-  /* ---------- marquee ---------- */
-  .marquee{position:fixed;left:0;right:0;bottom:0;z-index:6;
-           border-top:1px solid var(--hair);background:var(--bg);
-           overflow:hidden;white-space:nowrap;pointer-events:none;}
-  .marquee__track{display:inline-flex;will-change:transform;animation:scroll 34s linear infinite;}
-  .marquee span{display:inline-block;padding:9px 0;font-size:11px;letter-spacing:0.16em;
-                text-transform:uppercase;color:var(--ink);}
-  .marquee .sep{color:var(--faint);padding:0 1.6em;}
-  @keyframes scroll{to{transform:translateX(-50%);}}
-
   /* ---------- custom cursor ---------- */
   .cursor{position:fixed;top:0;left:0;width:13px;height:13px;border-radius:50%;
           background:#fff;mix-blend-mode:difference;pointer-events:none;z-index:50;
@@ -107,16 +87,12 @@
   @media (max-width:640px){
     #mark{ font-size:clamp(52px,19vw,150px); }
     .sub{ margin-top:1.4em; font-size:9.5px; letter-spacing:0.26em; gap:0.7em; }
-    .tl-hud{ font-size:9px; letter-spacing:0.12em; top:calc(var(--pad) + 16px); left:calc(var(--pad) + 16px); }
-    .marquee span{ font-size:9.5px; letter-spacing:0.12em; }
-    .marquee .sep{ padding:0 1.1em; }
   }
   /* touch devices: no hover cursor */
   @media (hover:none){
     .cursor{ display:none; }
   }
   @media (prefers-reduced-motion:reduce){
-    .marquee__track{animation:none;}
     .grain{display:none;}
   }
 </style>
@@ -129,8 +105,6 @@
     <span class="crop bl"></span><span class="crop br"></span>
   </div>
 
-  <div class="hud tl-hud" aria-hidden="true"><span class="target"></span>MOXWOLD&nbsp;STUDIO</div>
-
   <main class="stage">
     <div class="mark-wrap">
       <h1 id="mark" aria-label="MOXWOLD"><span class="tm" aria-hidden="true">™</span></h1>
@@ -140,10 +114,6 @@
       </div>
     </div>
   </main>
-
-  <div class="marquee" aria-hidden="true">
-    <div class="marquee__track" id="track"></div>
-  </div>
 
   <div class="cursor" id="cursor" aria-hidden="true"></div>
 
@@ -202,7 +172,6 @@
   }
   window.addEventListener("pointermove", onMove, {passive:true});
   window.addEventListener("pointerdown", onMove, {passive:true});
-  // release the gravity-well when a touch lifts (so it doesn't stay stuck)
   function release(e){ if(!e || e.pointerType==="touch"){ mx=-9999; my=-9999; } }
   window.addEventListener("pointerup", release, {passive:true});
   window.addEventListener("pointercancel", release, {passive:true});
@@ -224,7 +193,6 @@
     vel*=0.9;
     const velN=Math.min(1, vel/55);
 
-    // ambient: fade in when idle (always on for touch), out when the pointer is active
     const idle = (t0 - lastMove) > 1400;
     const ambientWant = (isTouch || idle) ? 1 : 0;
     ambAmp = lerp(ambAmp, ambientWant, 0.045);
@@ -235,12 +203,12 @@
       const L=letters[i];
       const dx=L.cx-mx, dy=L.cy-my;
       const d=Math.hypot(dx,dy);
-      const t = d<RADIUS ? gauss(d,RADIUS) : 0;                 // cursor proximity 0..1
-      const aw = (Math.sin(t0*0.0016 + i*0.72)*0.5+0.5) * ambAmp; // ambient wave 0..1
-      const wf = Math.max(t, aw*0.62);                          // effective weight factor
+      const t = d<RADIUS ? gauss(d,RADIUS) : 0;
+      const aw = (Math.sin(t0*0.0016 + i*0.72)*0.5+0.5) * ambAmp;
+      const wf = Math.max(t, aw*0.62);
 
       L.tar.w  = lerp(REST.w , PEAK.w , wf);
-      L.tar.wd = lerp(REST.wd, PEAK.wd, t);                     // width: cursor proximity only (stable box when idle)
+      L.tar.wd = lerp(REST.wd, PEAK.wd, t);              // width: cursor proximity only (stable box when idle)
       const f=Math.max(0,1-d/RADIUS); const pull=f*f*PULL;
       L.tar.x = -(dx/(d||1))*pull;
       L.tar.y = -(dy/(d||1))*pull*0.7;
@@ -271,7 +239,6 @@
     if(active){ requestAnimationFrame(tick); } else { running=false; }
   }
   requestAnimationFrame(tick);
-  // keep the loop alive so ambient can breathe even with no input
   setInterval(()=>{ if(!running){ running=true; requestAnimationFrame(tick); } }, 1600);
 
   /* ---- scramble (latin / symbols only) ---- */
@@ -305,12 +272,6 @@
     const n=Date.now(); if(n-scrTimer<700||scrambling) return; scrTimer=n;
     if(!REDUCED) scramble();
   });
-
-  /* ---- marquee ---- */
-  const track=document.getElementById("track");
-  const items=["MOXWOLD™","SOFTWARE STUDIO","OSLO, NORWAY","INDEPENDENT SOFTWARE"];
-  const unit=items.map(t=>`<span>${t}</span><span class="sep">*</span>`).join("");
-  track.innerHTML=unit+unit;
 })();
 </script>
 </body>
