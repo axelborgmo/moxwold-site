@@ -240,7 +240,7 @@
       const wf = Math.max(t, aw*0.62);                          // effective weight factor
 
       L.tar.w  = lerp(REST.w , PEAK.w , wf);
-      L.tar.wd = lerp(REST.wd, PEAK.wd, wf);
+      L.tar.wd = lerp(REST.wd, PEAK.wd, t);                     // width: cursor proximity only (stable box when idle)
       const f=Math.max(0,1-d/RADIUS); const pull=f*f*PULL;
       L.tar.x = -(dx/(d||1))*pull;
       L.tar.y = -(dy/(d||1))*pull*0.7;
@@ -299,15 +299,12 @@
     })();
   }
   if(!REDUCED){ setTimeout(scramble, 220); }
+  // tap / click the wordmark to re-scramble (works on touch and desktop)
   let scrTimer=0;
-  mark.addEventListener("pointerenter", ()=>{
-    const n=Date.now(); if(n-scrTimer<900||scrambling) return; scrTimer=n;
+  mark.addEventListener("pointerdown", ()=>{
+    const n=Date.now(); if(n-scrTimer<700||scrambling) return; scrTimer=n;
     if(!REDUCED) scramble();
   });
-  // periodic auto-scramble while ambient (keeps mobile / idle alive)
-  if(!REDUCED){
-    setInterval(()=>{ if(!scrambling && ambAmp>0.5) scramble(); }, 7000);
-  }
 
   /* ---- marquee ---- */
   const track=document.getElementById("track");
