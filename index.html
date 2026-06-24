@@ -10,17 +10,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@75..150,100..900&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#F2EFE6;            /* bone paper */
-    --ink:#121212;           /* soft black */
+    --bg:#F2EFE6;
+    --ink:#121212;
     --hair:#1212121f;
     --muted:#12121299;
     --faint:#1212124d;
-    --mag:#EC008C;           /* warhol misregistration — magenta */
-    --cyan:#00AEEF;          /* warhol misregistration — cyan */
-    --pad:clamp(16px,3.2vw,40px);
+    --mag:#EC008C;
+    --cyan:#00AEEF;
+    --pad:clamp(14px,3.2vw,40px);
   }
   *{margin:0;padding:0;box-sizing:border-box;}
   html,body{height:100%;}
+  html{ -webkit-text-size-adjust:100%; }
   body{
     background:var(--bg);
     color:var(--ink);
@@ -29,13 +30,15 @@
     cursor:none;
     -webkit-font-smoothing:antialiased;
     text-rendering:optimizeLegibility;
+    overscroll-behavior:none;
+    touch-action:none;
   }
-  /* ---------- frame / crop marks ---------- */
+  /* ---------- crop marks ---------- */
   .frame{position:fixed;inset:0;z-index:5;pointer-events:none;}
-  .crop{position:absolute;width:14px;height:14px;}
+  .crop{position:absolute;width:13px;height:13px;}
   .crop::before,.crop::after{content:"";position:absolute;background:var(--ink);}
-  .crop::before{width:14px;height:1px;top:0;left:0;}
-  .crop::after{width:1px;height:14px;top:0;left:0;}
+  .crop::before{width:13px;height:1px;top:0;left:0;}
+  .crop::after{width:1px;height:13px;top:0;left:0;}
   .crop.tl{top:var(--pad);left:var(--pad);}
   .crop.tr{top:var(--pad);right:var(--pad);transform:scaleX(-1);}
   .crop.bl{bottom:var(--pad);left:var(--pad);transform:scaleY(-1);}
@@ -44,7 +47,7 @@
   /* ---------- corner brand mark ---------- */
   .hud{position:fixed;z-index:6;font-size:10.5px;line-height:1.5;letter-spacing:0.14em;
        text-transform:uppercase;color:var(--muted);pointer-events:none;white-space:nowrap;}
-  .tl-hud{top:calc(var(--pad) + 22px);left:calc(var(--pad) + 22px);}
+  .tl-hud{top:calc(var(--pad) + 20px);left:calc(var(--pad) + 20px);}
   .target{display:inline-block;width:11px;height:11px;border:1px solid currentColor;border-radius:50%;
           position:relative;vertical-align:-1px;margin-right:6px;}
   .target::before,.target::after{content:"";position:absolute;background:currentColor;}
@@ -52,12 +55,12 @@
   .target::after{height:1px;width:11px;top:50%;left:-3px;transform:translateY(-50%);}
 
   /* ---------- stage / wordmark ---------- */
-  .stage{position:fixed;inset:0;display:grid;place-items:center;z-index:4;}
+  .stage{position:fixed;inset:0;display:grid;place-items:center;z-index:4;padding:0 var(--pad);}
   .mark-wrap{position:relative;text-align:center;}
   #mark{
     font-family:"Anybody",system-ui,sans-serif;
     font-weight:760;
-    font-size:clamp(58px,16.5vw,260px);
+    font-size:clamp(54px,16.5vw,260px);
     line-height:0.9;
     letter-spacing:-0.01em;
     display:flex;justify-content:center;align-items:center;
@@ -65,8 +68,7 @@
     font-variation-settings:"wght" 760,"wdth" 100;
   }
   #mark .ch{
-    display:inline-block;
-    position:relative;
+    display:inline-block;position:relative;
     will-change:transform,font-variation-settings,text-shadow;
     font-variation-settings:inherit;
   }
@@ -76,7 +78,7 @@
     align-self:flex-start;margin-top:0.5em;margin-left:0.1em;
     letter-spacing:0;color:var(--muted);
   }
-  .sub{margin-top:1.6em;display:flex;gap:0.9em;justify-content:center;align-items:center;
+  .sub{margin-top:1.7em;display:flex;gap:0.9em;justify-content:center;align-items:center;
        font-size:11px;letter-spacing:0.34em;text-transform:uppercase;color:var(--muted);}
   .sub .dot{width:4px;height:4px;background:var(--ink);border-radius:50%;display:inline-block;}
 
@@ -84,7 +86,7 @@
   .marquee{position:fixed;left:0;right:0;bottom:0;z-index:6;
            border-top:1px solid var(--hair);background:var(--bg);
            overflow:hidden;white-space:nowrap;pointer-events:none;}
-  .marquee__track{display:inline-flex;will-change:transform;animation:scroll 38s linear infinite;}
+  .marquee__track{display:inline-flex;will-change:transform;animation:scroll 34s linear infinite;}
   .marquee span{display:inline-block;padding:9px 0;font-size:11px;letter-spacing:0.16em;
                 text-transform:uppercase;color:var(--ink);}
   .marquee .sep{color:var(--faint);padding:0 1.6em;}
@@ -101,8 +103,17 @@
          background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
          will-change:transform;}
 
+  /* ---------- mobile ---------- */
   @media (max-width:640px){
-    .sub{flex-wrap:wrap;gap:0.5em;}
+    #mark{ font-size:clamp(52px,19vw,150px); }
+    .sub{ margin-top:1.4em; font-size:9.5px; letter-spacing:0.26em; gap:0.7em; }
+    .tl-hud{ font-size:9px; letter-spacing:0.12em; top:calc(var(--pad) + 16px); left:calc(var(--pad) + 16px); }
+    .marquee span{ font-size:9.5px; letter-spacing:0.12em; }
+    .marquee .sep{ padding:0 1.1em; }
+  }
+  /* touch devices: no hover cursor */
+  @media (hover:none){
+    .cursor{ display:none; }
   }
   @media (prefers-reduced-motion:reduce){
     .marquee__track{animation:none;}
@@ -111,19 +122,15 @@
 </style>
 </head>
 <body>
-  <!-- grain -->
   <div class="grain" id="grain" aria-hidden="true"></div>
 
-  <!-- frame + crop marks -->
   <div class="frame" aria-hidden="true">
     <span class="crop tl"></span><span class="crop tr"></span>
     <span class="crop bl"></span><span class="crop br"></span>
   </div>
 
-  <!-- corner brand mark -->
   <div class="hud tl-hud" aria-hidden="true"><span class="target"></span>MOXWOLD&nbsp;STUDIO</div>
 
-  <!-- stage -->
   <main class="stage">
     <div class="mark-wrap">
       <h1 id="mark" aria-label="MOXWOLD"><span class="tm" aria-hidden="true">™</span></h1>
@@ -134,21 +141,21 @@
     </div>
   </main>
 
-  <!-- marquee -->
   <div class="marquee" aria-hidden="true">
     <div class="marquee__track" id="track"></div>
   </div>
 
-  <!-- cursor -->
   <div class="cursor" id="cursor" aria-hidden="true"></div>
 
 <script>
 (function(){
   "use strict";
   const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const isTouch = window.matchMedia("(hover:none)").matches;
+  const isNarrow = window.matchMedia("(max-width:640px)").matches;
   const WORD = "MOXWOLD";
+  const now = ()=> (window.performance && performance.now ? performance.now() : Date.now());
 
-  /* ---- build wordmark letters (insert before the ™) ---- */
   const mark = document.getElementById("mark");
   const tm = mark.querySelector(".tm");
   const letters = [];
@@ -168,36 +175,44 @@
       L.cy = r.top  + r.height/2;
     }
   }
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(()=>{ measure(); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
   window.addEventListener("load", measure);
-  window.addEventListener("resize", ()=>{ measure(); }, {passive:true});
+  window.addEventListener("resize", measure, {passive:true});
+  window.addEventListener("orientationchange", ()=>setTimeout(measure,250));
   setTimeout(measure, 300); setTimeout(measure, 1200);
 
   /* ---- pointer + velocity ---- */
   let mx=-9999, my=-9999, pmx=0, pmy=0, vel=0;
   let cx=window.innerWidth/2, cy=window.innerHeight/2;
-  let cScale=1;
-  let running=false;
+  let cScale=1, running=false, lastMove=-9999, ambAmp=0;
 
-  const REST={w:540,wd:100}, PEAK={w:880,wd:138};
-  const RADIUS=275, PULL=17, AB_MAX=6;
+  const REST={w:540,wd:100};
+  const PEAK = isNarrow ? {w:860,wd:118} : {w:880,wd:138};
+  const RADIUS = isNarrow ? 210 : 275;
+  const PULL   = isNarrow ? 10  : 17;
+  const AB_MAX = 6;
   const gauss=(d,r)=>Math.exp(-(d*d)/(2*(r*0.46)*(r*0.46)));
   const lerp=(a,b,n)=>a+(b-a)*n;
 
   function onMove(e){
     mx=e.clientX; my=e.clientY;
     vel=Math.min(80, Math.hypot(mx-pmx,my-pmy));
-    pmx=mx; pmy=my;
+    pmx=mx; pmy=my; lastMove=now();
     if(!running){ running=true; requestAnimationFrame(tick); }
   }
   window.addEventListener("pointermove", onMove, {passive:true});
   window.addEventListener("pointerdown", onMove, {passive:true});
+  // release the gravity-well when a touch lifts (so it doesn't stay stuck)
+  function release(e){ if(!e || e.pointerType==="touch"){ mx=-9999; my=-9999; } }
+  window.addEventListener("pointerup", release, {passive:true});
+  window.addEventListener("pointercancel", release, {passive:true});
 
   const cursor=document.getElementById("cursor");
   const grain=document.getElementById("grain");
   let gx=0, gy=0;
 
   function tick(){
+    const t0 = now();
     cx=lerp(cx,mx<-9000?window.innerWidth/2:mx,0.18);
     cy=lerp(cy,my<-9000?window.innerHeight/2:my,0.18);
 
@@ -208,19 +223,28 @@
 
     vel*=0.9;
     const velN=Math.min(1, vel/55);
-    let active=Math.abs(cScale-(nearMark?3.2:1))>0.01 || vel>0.4;
 
-    for(const L of letters){
+    // ambient: fade in when idle (always on for touch), out when the pointer is active
+    const idle = (t0 - lastMove) > 1400;
+    const ambientWant = (isTouch || idle) ? 1 : 0;
+    ambAmp = lerp(ambAmp, ambientWant, 0.045);
+
+    let active = ambAmp>0.02 || Math.abs(cScale-(nearMark?3.2:1))>0.01 || vel>0.4;
+
+    for(let i=0;i<letters.length;i++){
+      const L=letters[i];
       const dx=L.cx-mx, dy=L.cy-my;
       const d=Math.hypot(dx,dy);
-      const t=d<RADIUS?gauss(d,RADIUS):0;
+      const t = d<RADIUS ? gauss(d,RADIUS) : 0;                 // cursor proximity 0..1
+      const aw = (Math.sin(t0*0.0016 + i*0.72)*0.5+0.5) * ambAmp; // ambient wave 0..1
+      const wf = Math.max(t, aw*0.62);                          // effective weight factor
 
-      L.tar.w  = lerp(REST.w , PEAK.w , t);
-      L.tar.wd = lerp(REST.wd, PEAK.wd, t);
+      L.tar.w  = lerp(REST.w , PEAK.w , wf);
+      L.tar.wd = lerp(REST.wd, PEAK.wd, wf);
       const f=Math.max(0,1-d/RADIUS); const pull=f*f*PULL;
       L.tar.x = -(dx/(d||1))*pull;
       L.tar.y = -(dy/(d||1))*pull*0.7;
-      L.tar.ab = (t*0.6 + velN*0.9) * AB_MAX;
+      L.tar.ab = (t*0.6 + velN*0.9 + aw*0.45) * AB_MAX;
 
       L.cur.w  = lerp(L.cur.w , L.tar.w , 0.16);
       L.cur.wd = lerp(L.cur.wd, L.tar.wd, 0.16);
@@ -234,32 +258,33 @@
       L.node.style.textShadow = a>0.15
         ? `${a.toFixed(2)}px 0 0 var(--mag), ${(-a).toFixed(2)}px 0 0 var(--cyan)`
         : "none";
-
-      if(Math.abs(L.tar.w-L.cur.w)>0.5 || Math.abs(L.cur.x-L.tar.x)>0.2 || L.cur.ab>0.2) active=true;
     }
 
     mark.style.letterSpacing = (-0.01 + velN*0.04).toFixed(4)+"em";
 
     if(!REDUCED){
-      gx=lerp(gx,(mx/window.innerWidth-0.5)*30,0.05);
-      gy=lerp(gy,(my/window.innerHeight-0.5)*30,0.05);
+      gx=lerp(gx,(mx<-9000?0:(mx/window.innerWidth-0.5))*30,0.05);
+      gy=lerp(gy,(my<-9000?0:(my/window.innerHeight-0.5))*30,0.05);
       grain.style.transform=`translate(${gx.toFixed(1)}px,${gy.toFixed(1)}px)`;
     }
 
     if(active){ requestAnimationFrame(tick); } else { running=false; }
   }
   requestAnimationFrame(tick);
+  // keep the loop alive so ambient can breathe even with no input
+  setInterval(()=>{ if(!running){ running=true; requestAnimationFrame(tick); } }, 1600);
 
-  /* ---- scramble reveal (latin / symbols only) ---- */
+  /* ---- scramble (latin / symbols only) ---- */
   const GLYPHS="MOXWLD#%&/<>=+*◼◻█▚▞01";
-  function scramble(target){
+  let scrambling=false;
+  function scramble(){
     const nodes=letters.map(L=>L.node);
     const queue=nodes.map((n,i)=>({
-      to:target[i], node:n,
+      to:WORD[i], node:n,
       start:Math.floor(Math.random()*16),
       end:Math.floor(Math.random()*16)+18+i*2, char:null
     }));
-    let frame=0, raf;
+    let frame=0; scrambling=true;
     (function run(){
       let done=0;
       for(const q of queue){
@@ -269,18 +294,22 @@
           q.node.textContent=q.char;
         } else { q.node.textContent=""; }
       }
-      if(done<queue.length){ frame++; raf=requestAnimationFrame(run); }
-      else { for(let i=0;i<nodes.length;i++) nodes[i].textContent=WORD[i]; }
+      if(done<queue.length){ frame++; requestAnimationFrame(run); }
+      else { for(let i=0;i<nodes.length;i++) nodes[i].textContent=WORD[i]; scrambling=false; }
     })();
   }
-  if(!REDUCED){ setTimeout(()=>scramble(WORD), 220); }
+  if(!REDUCED){ setTimeout(scramble, 220); }
   let scrTimer=0;
   mark.addEventListener("pointerenter", ()=>{
-    const now=Date.now(); if(now-scrTimer<900) return; scrTimer=now;
-    if(!REDUCED) scramble(WORD);
+    const n=Date.now(); if(n-scrTimer<900||scrambling) return; scrTimer=n;
+    if(!REDUCED) scramble();
   });
+  // periodic auto-scramble while ambient (keeps mobile / idle alive)
+  if(!REDUCED){
+    setInterval(()=>{ if(!scrambling && ambAmp>0.5) scramble(); }, 7000);
+  }
 
-  /* ---- marquee content ---- */
+  /* ---- marquee ---- */
   const track=document.getElementById("track");
   const items=["MOXWOLD™","SOFTWARE STUDIO","OSLO, NORWAY","INDEPENDENT SOFTWARE"];
   const unit=items.map(t=>`<span>${t}</span><span class="sep">*</span>`).join("");
