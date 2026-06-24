@@ -235,7 +235,7 @@
   setInterval(()=>{ if(!running){ running=true; requestAnimationFrame(tick); } }, 1600);
 
   /* ---- scramble (latin / symbols only) ---- */
-  const GLYPHS="MOXWLD#%&/<>=+*◼◻█▚▞01";
+  const GLYPHS="ØÆÅøæåØÆÅøæå{}()[];:<>=+-*/%&|!^~#";
   let scrambling=false;
   function scramble(){
     const nodes=letters.map(L=>L.node);
