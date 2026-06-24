@@ -62,15 +62,11 @@
     will-change:transform,font-variation-settings,text-shadow;
     font-variation-settings:inherit;
   }
-  .sub{margin-top:1.7em;display:flex;gap:0.9em;justify-content:center;align-items:center;
+  .sub{margin-top:1.7em;display:flex;flex-wrap:wrap;gap:0.9em;justify-content:center;align-items:center;
        font-size:11px;letter-spacing:0.34em;text-transform:uppercase;color:var(--muted);}
   .sub .dot{width:4px;height:4px;background:var(--ink);border-radius:50%;display:inline-block;}
-
-  /* ---------- contact ---------- */
-  .contact{position:fixed;left:50%;bottom:calc(var(--pad) - 1px);transform:translateX(-50%);z-index:6;
-           font-size:11px;letter-spacing:0.16em;text-transform:uppercase;text-align:center;}
-  .contact a{color:var(--muted);text-decoration:none;pointer-events:auto;transition:color .25s ease;}
-  .contact a:hover{color:var(--ink);}
+  .sub a{color:inherit;text-decoration:none;pointer-events:auto;transition:color .25s ease;}
+  .sub a:hover{color:var(--ink);}
 
   /* ---------- custom cursor ---------- */
   .cursor{position:fixed;top:0;left:0;width:13px;height:13px;border-radius:50%;
@@ -86,8 +82,7 @@
   /* ---------- mobile ---------- */
   @media (max-width:640px){
     #mark{ font-size:clamp(52px,19vw,150px); }
-    .sub{ margin-top:1.4em; font-size:9.5px; letter-spacing:0.26em; gap:0.7em; }
-    .contact{ font-size:10px; letter-spacing:0.1em; }
+    .sub{ margin-top:1.4em; font-size:9.5px; letter-spacing:0.2em; gap:0.6em; }
   }
   /* touch devices: no hover cursor */
   @media (hover:none){
@@ -109,14 +104,13 @@
   <main class="stage">
     <div class="mark-wrap">
       <h1 id="mark" aria-label="MOXWOLD"></h1>
-      <div class="sub" aria-hidden="true">
+      <div class="sub">
         <span>SOFTWARE</span><span class="dot"></span>
-        <span>OSLO</span>
+        <span>OSLO</span><span class="dot"></span>
+        <a href="mailto:hello@moxwold.com">hello@moxwold.com</a>
       </div>
     </div>
   </main>
-
-  <div class="contact"><a href="mailto:hello@moxwold.com">hello@moxwold.com</a></div>
 
   <div class="cursor" id="cursor" aria-hidden="true"></div>
 
