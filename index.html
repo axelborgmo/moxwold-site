@@ -67,7 +67,7 @@
   .sub .dot{width:4px;height:4px;background:var(--ink);border-radius:50%;display:inline-block;}
   .sub a{color:inherit;text-decoration:none;pointer-events:auto;transition:color .25s ease;}
   .sub a:hover{color:var(--ink);}
-  .sub .at{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;display:inline-block;width:0.6em;text-align:center;}
+  .sub .at{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;display:inline-block;width:0.6em;text-align:center;margin-right:0.34em;}
 
   /* ---------- custom cursor ---------- */
   .cursor{position:fixed;top:0;left:0;width:13px;height:13px;border-radius:50%;
@@ -84,6 +84,7 @@
   @media (max-width:640px){
     #mark{ font-size:clamp(52px,19vw,150px); }
     .sub{ margin-top:1.4em; font-size:9.5px; letter-spacing:0.2em; gap:0.6em; }
+    .sub .at{ margin-right:0.2em; }
   }
   /* touch devices: no hover cursor */
   @media (hover:none){
