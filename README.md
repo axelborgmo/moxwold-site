@@ -1,7 +1,8 @@
 # moxwold-site
 
-Single-page interactive site for **Moxwold AS** — a self-contained kinetic-typography
-art piece (vanilla HTML/CSS/JS, no build step, no dependencies beyond Google Fonts).
+Interactive company site for **Moxwold AS** — a kinetic-typography landing page plus
+an animated About page with company, services, contact, and registration details.
+Vanilla HTML/CSS/JS, with no build step or dependencies beyond Google Fonts.
 
 **Live (staging):** https://axelborgmo.github.io/moxwold-site/
 
