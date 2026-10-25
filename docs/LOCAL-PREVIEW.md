@@ -1,48 +1,47 @@
-# Minimal local music revision — 25 October 2026
+# Music and software revision — 25 October 2026
 
-User superseded the portfolio redesign. The original homepage and About page
-were restored from the repository's baseline, with these requested edits only:
+The homepage keeps its original identity: SOFTWARE · MUSIC · OSLO, original
+email placement and glyph vocabulary, and exactly one ♪ per active replay.
+About contains only the introduction, unnumbered services and contact area.
+There are no personal profiles, project credits, client lists, genre lists,
+repeated company labels or audio playback.
 
-- Homepage subtitle: SOFTWARE · MUSIC · OSLO, with original email placement.
-- Original glyph vocabulary and animation, with a single ♪ in one slot per replay.
-- About: independent Norwegian technology and music company.
-- About opens directly on the black company introduction; the white ABOUT hero
-  and its unused animation code are removed. Navigation is light on black.
-- Removed the introductory Moxwold/Established2025 label and repeated footer.
-  Company details remain in the company-information section only.
-- Removed the remaining oversized company heading and company/number labels in
-  both page headers. About/Home links stay top-right; legal name remains in facts.
-- Software and music have the same emphasis; the software-development em dash
-  is removed. About's cursor gently stretches with motion (maximum1.22×).
-- Services: Software development, Music production, Consulting; no numbers.
-- Consulting covers software and music projects; no "hands-on technology" wording.
-- Music production description has no genre list.
-- No personal biography, clients, project credits, research paper or audio playback.
-- Removed task-created separate Music/Software pages and their unused shared assets.
+## Latest requested changes
 
-Existing fonts, crop marks, grain, layout and original About color sections remain.
-No colored Software/Music hover treatments remain because those new links are gone.
-The original interval wake-up was not reintroduced; animation uses animation frames
-and visibility/resize events. Replay remains keyboard accessible.
+- Removed the full company-information block from About.
+- Aligned introduction and services to the navigation inset and reduced the
+  introduction's top/bottom spacing; removed its old viewport-height floor.
+- Software/music emphasis responds to pointer proximity with bounded translation
+  and chromatic separation. Layout/font metrics do not change with the pointer.
+- Pointer effects are event-driven, settle to rest, and reset on blur or reduced
+  motion; coarse pointers do not animate. No timers or periodic monitoring added.
+- Required business details are reached through a small Company details link on
+  both main pages, rather than shown as a large block in the About page flow.
 
-## Checks
+## Verified before publication
 
-- `node --test tests/site.test.mjs`: seven passing tests, including 29 deterministic
-  simulations of the actual scramble. Every active frame has exactly one note,
-  the other symbols use the original vocabulary, and each replay restores MOXWOLD.
-- Both inline scripts compile; JSON-LD parses; local links and two-page sitemap validate.
-- Browser readback confirms original home layout and company-only About content,
-  unnumbered services in the requested order, and no personal/client/project copy.
-- Both pages checked at actual CSS widths320,390,768,1280: no document-level
-  horizontal overflow. Temporary viewport override reset afterward.
-- Live replay readback showed exactly one note and the original glyph vocabulary.
-- Follow-up About change: black opening and light navigation verified at widths
-  320,390,768,1280 with no horizontal overflow or header/content overlap; no logged
-  browser errors. Viewport override reset and result left open at the introduction.
-- Refinement verified in browser: software/music use identical computed font and
-  text-shadow; intro label/footer absent; one visible organization number remains
-  in company information. Cursor movement produced a gentle1.208× stretch in the
-  sampled frame. Rechecked320/390/768/1280 without overflow or header overlap.
+- `node --test tests/site.test.mjs`: nine passing tests. Includes 29 deterministic
+  actual-scramble simulations and tests of bounded/resettable pointer targets.
+- Inline JavaScript syntax, JSON-LD, three-page links and sitemap pass.
+- Browser: About sections are intro, practice, contact; the company table is absent.
+- Pointer test: software translated3.48px/0.24px, shadow separation changed from
+  3px to6.06px; music also reacted. This is visible text motion, not cursor-only.
+- Reduced-motion emulation: transforms none, static3px emphasis, cursor hidden.
+  Emulation removed afterward.
+- Home/About/company pages checked at actual CSS widths320,390,768,1280 with no
+  document-level horizontal overflow. Temporary viewport override reset.
+- Company-details links work; browser console had no logged errors.
 
-Local preview: http://127.0.0.1:4178/ . The requested preview server/tab remain open.
-No push, publication, DNS, email, hosting or other external changes were made.
+## Business-disclosure sources
+
+Registered company details and VAT/Foretaksregisteret status read from the public
+Enhetsregister API on25Oct2026. The page uses the registered business address.
+
+- https://data.brreg.no/enhetsregisteret/api/enheter/935872200
+- https://info.altinn.no/starte-og-drive/drive-bedrift/juridiske-og-regulatoriske-krav/krav-til-informasjon-om-foretaket-pa-nettsider-og-forretningsdokumenter/
+- https://www.regjeringen.no/no/dokumenter/otprp-nr-31-2002-2003-/id172159/?ch=16
+
+Production: https://moxwold.com/ . Local preview is used only during verification.
+The existing free public GitHub Pages route is retained; no hosting/DNS/mail or
+account-permission changes are part of this revision. Deployment receipts and
+spending-guard restoration evidence are stored privately outside the repository.

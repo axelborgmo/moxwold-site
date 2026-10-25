@@ -104,6 +104,9 @@
                      transform:scaleX(0);transform-origin:right;transition:transform .28s ease;}
   .site-meta a:hover::after,.site-meta a:focus-visible::after{transform:scaleX(1);transform-origin:left;}
   a:focus-visible{outline:1px solid var(--ink);outline-offset:5px;}
+  .company-details{position:fixed;bottom:calc(var(--pad) + 18px);left:calc(var(--pad) + 22px);z-index:12;
+                   display:inline-flex;align-items:center;min-height:44px;color:var(--muted);font-size:9px;letter-spacing:.04em;}
+  .company-details:hover{color:var(--ink);text-decoration:underline;text-underline-offset:4px;}
 
   /* ---------- custom cursor ---------- */
   .cursor{position:fixed;top:0;left:0;width:13px;height:13px;border-radius:50%;
@@ -159,6 +162,7 @@
   </main>
 
   <div class="cursor" id="cursor" aria-hidden="true"></div>
+  <a class="company-details" href="company/">Company details</a>
 
 <script>
 (function(){

@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const pages = ['index.html', 'about/index.html'];
+const pages = ['index.html', 'about/index.html', 'company/index.html'];
 const read = name => readFile(path.join(root, name), 'utf8');
 const attrs = tag => Object.fromEntries([...tag.matchAll(/([\w:-]+)\s*=\s*(["'])(.*?)\2/gs)].map(m => [m[1].toLowerCase(), m[3]]));
 const tags = (html, name) => [...html.matchAll(new RegExp(`<${name}\\b[^>]*>`, 'gi'))].map(m => attrs(m[0]));
@@ -18,7 +18,7 @@ function target(page, reference) {
   return resolved;
 }
 
-test('two company pages have metadata, valid inline JavaScript and organization JSON-LD', async () => {
+test('three company pages have metadata, valid inline JavaScript and organization JSON-LD', async () => {
   const titles = new Set();
   for (const page of pages) {
     const html = await read(page);
@@ -28,7 +28,7 @@ test('two company pages have metadata, valid inline JavaScript and organization 
     titles.add(title);
     assert.ok(tags(html, 'meta').find(a => a.name === 'description')?.content);
     const canonical = tags(html, 'link').find(a => a.rel === 'canonical')?.href;
-    assert.equal(canonical, `https://moxwold.com/${page === 'index.html' ? '' : 'about/'}`);
+    assert.equal(canonical, `https://moxwold.com/${page === 'index.html' ? '' : page.replace('index.html', '')}`);
     assert.equal([...html.matchAll(/<h1\b/gi)].length, 1);
     assert.match(html, /<main\b/);
     let organizations = 0;
@@ -49,7 +49,7 @@ test('two company pages have metadata, valid inline JavaScript and organization 
     assert.doesNotMatch(html, /class=["'][^"']*\bnumber\b/);
     assert.doesNotMatch(html, /hands-on technology consulting|technology consulting/i);
   }
-  assert.equal(titles.size, 2);
+  assert.equal(titles.size, 3);
 });
 
 test('original front-page hierarchy and quiet About navigation remain', async () => {
@@ -105,17 +105,17 @@ test('About gives software and music matching emphasis without repeated company 
   assert.doesNotMatch(intro, /Established 2025|Moxwold AS|section-label/);
   assert.doesNotMatch(html, /<footer\b/);
   const body = html.match(/<body>([\s\S]*?)<script>/)?.[1] ?? '';
-  assert.equal((plain(body).match(/935 872 200/g) ?? []).length, 1);
+  assert.doesNotMatch(plain(body), /935\s*872\s*200/);
+  assert.doesNotMatch(html, /\.(?:company|facts)(?![\w-])|class=["'][^"']*\b(?:company|facts)(?![\w-])/);
+  assert.deepEqual([...html.matchAll(/<section class="([^"]+)"/g)].map(m => m[1]), ['intro', 'practice', 'contact']);
   assert.match(html, /Math\.min\(\.22,/);
   const header = html.match(/<header class="site-header">([\s\S]*?)<\/header>/)?.[1] ?? '';
   assert.equal(plain(header), 'Home&nbsp; ↙');
   assert.match(html, /\.site-header\{[^}]*justify-content:flex-end/);
-  const company = html.match(/<section class="company"[^>]*>([\s\S]*?)<\/section>/)?.[1] ?? '';
-  assert.doesNotMatch(company, /<h2\b|company-head/);
-  assert.match(company, /<dt>Legal name<\/dt><dd>Moxwold AS<\/dd>/);
+
 });
 
-test('local links and assets resolve, and sitemap exposes only home and About', async () => {
+test('local links and assets resolve, and sitemap exposes all three pages', async () => {
   for (const page of pages) {
     const html = await read(page);
     const otherPage = page === 'index.html' ? pages[1] : pages[0];
@@ -130,7 +130,57 @@ test('local links and assets resolve, and sitemap exposes only home and About', 
     }
   }
   const sitemap = await read('sitemap.xml');
-  assert.deepEqual([...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map(m => m[1]), ['https://moxwold.com/', 'https://moxwold.com/about/']);
+  assert.deepEqual([...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map(m => m[1]), ['https://moxwold.com/', 'https://moxwold.com/about/', 'https://moxwold.com/company/']);
+});
+
+
+test('Company details remain public without crowding the main pages', async () => {
+  for (const page of pages.slice(0, 2)) {
+    const html = await read(page);
+    const links = [...html.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi)];
+    assert.ok(links.some(m => plain(m[2]) === 'Company details' && target(page, attrs(m[1]).href ?? '') === path.join(root, 'company/index.html')));
+  }
+  const html = await read('company/index.html');
+  const visible = plain(html.match(/<body>([\s\S]*?)<\/body>/)?.[1] ?? '');
+  for (const expected of [/Moxwold AS/, /935\s*872\s*200\s*MVA/, /Foretaksregisteret/, /Oslo/, /hello\s*@\s*moxwold\.com/]) assert.match(visible, expected);
+  assert.match(html, /href="mailto:hello@moxwold\.com"/);
+  assert.ok(tags(html, 'a').some(a => a.href && target('company/index.html', a.href) === path.join(root, 'about/index.html')));
+});
+
+test('About aligns its content and gives pointer motion a bounded, resettable target', async () => {
+  const html = await read('about/index.html');
+  const compact = html.replace(/\s+/g, '');
+  assert.ok(compact.includes('--content-inset:calc(var(--pad)+22px)'));
+  assert.match(compact, /\.intro\{[^}]*padding:clamp\(96px,8vw,132px\)[^}]*var\(--content-inset\)/);
+  assert.match(compact, /\.practice\{[^}]*padding:[^}]*var\(--content-inset\)/);
+  assert.doesNotMatch(compact, /min-height:88vh/);
+  assert.match(html, /prefers-reduced-motion/);
+  assert.match(html, /pointer:\s*fine/);
+  assert.match(html, /addEventListener\(['"]pointermove['"]/);
+  assert.match(html, /requestAnimationFrame/);
+  assert.match(html, /style\.(?:transform|setProperty)/);
+  const start = html.search(/function\s+wordTarget\s*\(/);
+  assert.notEqual(start, -1, 'pure motion target is available for runtime testing');
+  const open = html.indexOf('{', start);
+  let depth = 1, end = open + 1;
+  while (end < html.length && depth) {
+    if (html[end] === '{') depth++;
+    if (html[end] === '}') depth--;
+    end++;
+  }
+  assert.equal(depth, 0);
+  const context = vm.createContext({});
+  vm.runInContext(`${html.slice(start, end)}; this.target = wordTarget;`, context);
+  const bounds = { left: 100, top: 100, width: 200, height: 100, right: 300, bottom: 200, centerX: 200, centerY: 150 };
+  for (const pointer of [null, { x: 10000, y: 10000 }]) {
+    assert.deepEqual(JSON.parse(JSON.stringify(context.target(bounds, pointer))), { x: 0, y: 0, split: 3 });
+  }
+  for (const pointer of [{ x: 290, y: 150 }, { x: 200, y: 190 }, { x: 110, y: 110 }]) {
+    const result = context.target(bounds, pointer);
+    assert.ok(Math.abs(result.x) <= 4 && Math.abs(result.y) <= 3);
+    assert.ok(result.split >= 3 && result.split <= 6.5);
+    assert.ok(Math.abs(result.x) + Math.abs(result.y) > 0, 'near-edge pointer displaces the word itself');
+  }
 });
 
 test('actual scramble keeps exactly one designated note until it restores MOXWOLD', async () => {

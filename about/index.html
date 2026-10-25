@@ -41,6 +41,7 @@
     --hair:#12121224;
     --paper-muted:#f2efe6a8;
     --pad:clamp(18px,3.2vw,44px);
+    --content-inset:calc(var(--pad) + 22px);
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   html{background:var(--ink);scroll-behavior:smooth;-webkit-text-size-adjust:100%;}
@@ -79,13 +80,15 @@
   .back:hover::after,.back:focus-visible::after{transform:scaleX(1);transform-origin:left;}
 
   /* information */
-  .intro{min-height:88vh;padding:clamp(110px,15vw,220px) max(var(--pad),8vw);background:var(--ink);color:var(--paper);}
+  .intro{padding:clamp(96px,8vw,132px) var(--content-inset) clamp(64px,8vw,120px);background:var(--ink);color:var(--paper);}
   .section-label{font-size:9px;line-height:1.5;letter-spacing:.2em;text-transform:uppercase;color:var(--paper-muted);}
   .statement{max-width:1100px;font-family:"Anybody",system-ui,sans-serif;font-size:clamp(42px,6.5vw,104px);
              font-weight:590;font-variation-settings:"wght" 590,"wdth" 92;line-height:.97;letter-spacing:-.035em;}
-  .statement em{font-style:normal;color:var(--paper);text-shadow:3px 0 var(--mag),-3px 0 var(--cyan);}
+  .statement em{display:inline-block;font-style:normal;color:var(--paper);
+                transform:translate3d(var(--word-x,0px),var(--word-y,0px),0);
+                text-shadow:var(--word-split,3px) 0 var(--mag),var(--word-split-neg,-3px) 0 var(--cyan);}
 
-  .practice{padding:clamp(100px,12vw,180px) max(var(--pad),8vw);background:var(--ink);color:var(--paper);
+  .practice{padding:clamp(72px,8vw,120px) var(--content-inset);background:var(--ink);color:var(--paper);
             border-top:1px solid #f2efe62b;}
   .practice-grid{margin-top:clamp(46px,7vw,90px);border-top:1px solid #f2efe64a;}
   .practice-item{display:grid;grid-template-columns:minmax(180px,1fr) minmax(260px,1.6fr);
@@ -93,17 +96,6 @@
   .practice-item h2{font-family:"Anybody",system-ui,sans-serif;font-size:clamp(27px,3vw,48px);font-weight:650;
                     font-variation-settings:"wght" 650,"wdth" 94;line-height:1;letter-spacing:-.02em;}
   .practice-item p{max-width:620px;font-size:clamp(12px,1.1vw,15px);line-height:1.85;color:var(--paper-muted);}
-
-  .company{padding:clamp(110px,14vw,210px) max(var(--pad),8vw);background:var(--paper);color:var(--ink);}
-  .facts{border-top:1px solid var(--ink);}
-  .fact{display:grid;grid-template-columns:minmax(150px,1fr) minmax(0,3.1fr);gap:6vw;padding:20px 0;
-        border-bottom:1px solid var(--hair);font-size:clamp(11px,1vw,14px);line-height:1.6;}
-  .fact dt{color:var(--muted);}
-  .fact dd{font-weight:700;}
-  .registry-link{display:inline-flex;align-items:center;gap:10px;margin-top:32px;text-decoration:none;
-                 font-size:9px;letter-spacing:.14em;text-transform:uppercase;}
-  .registry-link span{transition:transform .25s ease;}
-  .registry-link:hover span{transform:translate(3px,-3px);}
 
   .contact{position:relative;min-height:72vh;display:grid;place-items:center;padding:120px var(--pad);overflow:hidden;
            background:var(--mag);color:var(--ink);text-align:center;}
@@ -113,6 +105,9 @@
              font-size:clamp(35px,7vw,112px);font-weight:770;font-variation-settings:"wght" 770,"wdth" 84;
              line-height:.9;letter-spacing:-.045em;text-decoration:none;}
   .contact a:hover{font-variation-settings:"wght" 880,"wdth" 105;}
+  .contact .company-details{display:inline-flex;align-items:center;min-height:44px;margin-top:28px;
+                           font:10px/1.5 "Space Mono",monospace;letter-spacing:.02em;}
+  .contact .company-details:hover{font-variation-settings:normal;text-decoration:underline;text-underline-offset:4px;}
   .contact-orbit{position:absolute;width:min(74vw,900px);aspect-ratio:1;border:1px solid #12121260;border-radius:50%;
                  animation:orbit 14s linear infinite;}
   .contact-orbit::before,.contact-orbit::after{content:"";position:absolute;border-radius:50%;background:var(--cyan);}
@@ -122,10 +117,8 @@
 
   @media (max-width:760px){
     .site-header{top:calc(var(--pad) + 19px);left:calc(var(--pad) + 19px);right:calc(var(--pad) + 19px);}
-    .intro{min-height:auto;padding-top:110px;padding-bottom:120px;}
     .practice-item{grid-template-columns:1fr;gap:16px;}
     .practice-item p{margin-top:0;}
-    .fact{grid-template-columns:1fr 1.8fr;gap:24px;}
     .contact{min-height:60vh;}
     .contact a{font-size:clamp(28px,8.6vw,62px);}
   }
@@ -133,12 +126,13 @@
   @media (hover:hover) and (pointer:fine){
     body{cursor:none;}
     .cursor{position:fixed;top:0;left:0;z-index:100;width:13px;height:13px;border-radius:50%;background:#fff;
-            mix-blend-mode:difference;pointer-events:none;transform:translate(-50%,-50%);will-change:transform;}
+            opacity:0;mix-blend-mode:difference;pointer-events:none;transform:translate(-50%,-50%);will-change:transform;}
   }
   @media (hover:none),(pointer:coarse){.cursor{display:none;}}
   @media (prefers-reduced-motion:reduce){
     html{scroll-behavior:auto;}
     .grain,.contact-orbit{animation:none;}
+    .statement em{transform:none!important;text-shadow:3px 0 var(--mag),-3px 0 var(--cyan);}
     body{cursor:auto;}
     .cursor{display:none!important;}
   }
@@ -178,24 +172,12 @@
       </div>
     </section>
 
-    <section class="company" aria-label="Company information">
-      <div class="facts reveal">
-        <dl class="fact"><dt>Legal name</dt><dd>Moxwold AS</dd></dl>
-        <dl class="fact"><dt>Entity</dt><dd>Norwegian private limited company</dd></dl>
-        <dl class="fact"><dt>Organization number</dt><dd>935 872 200</dd></dl>
-        <dl class="fact"><dt>Registered office</dt><dd>Oslo, Norway</dd></dl>
-        <dl class="fact"><dt>Contact</dt><dd><a href="mailto:hello@moxwold.com">hello@moxwold.com</a></dd></dl>
-      </div>
-      <a class="registry-link reveal" href="https://virksomhet.brreg.no/nb/oppslag/enheter/935872200" rel="external">
-        View official company record <span aria-hidden="true">↗</span>
-      </a>
-    </section>
-
     <section class="contact" aria-labelledby="contact-title">
       <div class="contact-orbit" aria-hidden="true"></div>
       <div class="contact-copy reveal">
         <p class="section-label" id="contact-title">Start a conversation</p>
         <a href="mailto:hello@moxwold.com">hello@moxwold.com</a>
+        <a class="company-details" href="../company/">Company details</a>
       </div>
     </section>
   </main>
@@ -205,34 +187,93 @@
 <script>
 (function(){
   "use strict";
-  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const finePointer = window.matchMedia("(hover:hover) and (pointer:fine)").matches;
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const finePointer = window.matchMedia("(hover:hover) and (pointer:fine)");
   const cursor = document.getElementById("cursor");
   const grain = document.getElementById("grain");
   const lerp = (a,b,n)=>a+(b-a)*n;
   let mx=-9999,my=-9999,cx=innerWidth/2,cy=innerHeight/2,grainX=0,grainY=0,cursorStretch=1;
+  let frame=0;
+  const words=Array.from(document.querySelectorAll('.statement em'),node=>({node,x:0,y:0,split:3,bounds:{centerX:0,centerY:0}}));
 
-  if(finePointer){
-    addEventListener("pointermove",event=>{mx=event.clientX;my=event.clientY;},{passive:true});
+  function wordTarget(bounds,pointer){
+    if(!pointer) return {x:0,y:0,split:3};
+    const dx=pointer.x-bounds.centerX,dy=pointer.y-bounds.centerY;
+    const distance=Math.hypot(dx,dy);
+    const proximity=Math.max(0,1-distance/300);
+    return {x:dx/(distance||1)*proximity*4,y:dy/(distance||1)*proximity*3,split:3+proximity*3.5};
+  }
+
+  function measureWords(){
+    for(const word of words){
+      const rect=word.node.getBoundingClientRect();
+      word.bounds={centerX:rect.left+rect.width/2-word.x,centerY:rect.top+rect.height/2-word.y};
+    }
+  }
+
+  function requestFrame(){
+    if(!frame && !reduced.matches && finePointer.matches && !document.hidden) frame=requestAnimationFrame(animate);
+  }
+
+  function paintWord(word){
+    word.node.style.setProperty('--word-x',`${word.x.toFixed(2)}px`);
+    word.node.style.setProperty('--word-y',`${word.y.toFixed(2)}px`);
+    word.node.style.setProperty('--word-split',`${word.split.toFixed(2)}px`);
+    word.node.style.setProperty('--word-split-neg',`${(-word.split).toFixed(2)}px`);
+  }
+
+  function resetMotion(){
+    cancelAnimationFrame(frame);frame=0;mx=my=-9999;
+    if(cursor) cursor.style.opacity='0';
+    for(const word of words){word.x=word.y=0;word.split=3;paintWord(word);}
   }
 
   function animate(){
-    if(finePointer && cursor){
+    frame=0;
+    if(reduced.matches || !finePointer.matches || document.hidden) return;
+    const pointer=mx<-9000?null:{x:mx,y:my};
+    let unsettled=false;
+    if(pointer && cursor){
       const dx=mx-cx,dy=my-cy;
       const angle=mx<-9000?0:Math.atan2(dy,dx)*180/Math.PI;
       const targetStretch=mx<-9000?1:1+Math.min(.22,Math.hypot(dx,dy)/240);
       cursorStretch=lerp(cursorStretch,targetStretch,.12);
       cx=lerp(cx,mx,0.2);cy=lerp(cy,my,0.2);
       cursor.style.transform=`translate(${cx}px,${cy}px) translate(-50%,-50%) rotate(${angle.toFixed(1)}deg) scale(${cursorStretch.toFixed(3)},${(1/cursorStretch).toFixed(3)})`;
+      unsettled=Math.hypot(mx-cx,my-cy)>.1 || Math.abs(cursorStretch-targetStretch)>.001;
     }
-    if(!reduced && grain){
-      grainX=lerp(grainX,mx<-9000?0:(mx/innerWidth-.5)*24,.04);
-      grainY=lerp(grainY,my<-9000?0:(my/innerHeight-.5)*24,.04);
+    if(grain){
+      const targetX=pointer?(mx/innerWidth-.5)*24:0,targetY=pointer?(my/innerHeight-.5)*24:0;
+      grainX=lerp(grainX,targetX,.08);grainY=lerp(grainY,targetY,.08);
       grain.style.transform=`translate(${grainX.toFixed(1)}px,${grainY.toFixed(1)}px)`;
+      unsettled=unsettled || Math.abs(grainX-targetX)+Math.abs(grainY-targetY)>.02;
     }
-    if(!reduced) requestAnimationFrame(animate);
+    for(const word of words){
+      const target=wordTarget(word.bounds,pointer);
+      word.x=lerp(word.x,target.x,.14);word.y=lerp(word.y,target.y,.14);word.split=lerp(word.split,target.split,.14);
+      paintWord(word);
+      unsettled=unsettled || Math.abs(word.x-target.x)+Math.abs(word.y-target.y)+Math.abs(word.split-target.split)>.02;
+    }
+    if(unsettled) requestFrame();
   }
-  if(!reduced) requestAnimationFrame(animate);
+
+  addEventListener('pointermove',event=>{
+    if(reduced.matches || !finePointer.matches) return;
+    if(mx<-9000){cx=event.clientX;cy=event.clientY;}
+    mx=event.clientX;my=event.clientY;
+    if(cursor) cursor.style.opacity='1';
+    requestFrame();
+  },{passive:true});
+  document.documentElement.addEventListener('pointerleave',()=>{mx=my=-9999;if(cursor)cursor.style.opacity='0';requestFrame();});
+  addEventListener('blur',resetMotion);
+  addEventListener('resize',()=>{measureWords();requestFrame();},{passive:true});
+  addEventListener('scroll',()=>{measureWords();requestFrame();},{passive:true});
+  reduced.addEventListener('change',()=>{resetMotion();measureWords();requestFrame();});
+  finePointer.addEventListener('change',()=>{resetMotion();measureWords();requestFrame();});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)resetMotion();else{measureWords();requestFrame();}});
+  new ResizeObserver(()=>{measureWords();requestFrame();}).observe(document.querySelector('.statement'));
+  document.fonts.ready.then(()=>{measureWords();requestFrame();});
+  measureWords();
 
 })();
 </script>
