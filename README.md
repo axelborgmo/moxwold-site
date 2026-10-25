@@ -24,3 +24,20 @@ At Domeneshop → domene.shop → *Mine domener* → moxwold.com → *DNS*:
 Then in this repo: add a file named `CNAME` containing `moxwold.com`, and set
 **Settings → Pages → Custom domain = moxwold.com**, tick **Enforce HTTPS**.
 GitHub issues the TLS certificate automatically (minutes).
+
+## Local music revision
+
+The original homepage layout is retained; About starts directly with its black
+company introduction. The homepage replaces CONSULTING with MUSIC.
+The scramble uses its original character set plus one
+musical note at a time. About describes the company's software, music production
+and consulting services without personal profiles or project/client credits.
+
+Local-only preview (no push or publication): http://127.0.0.1:4178/
+
+```sh
+python3 -m http.server 4178 --bind 127.0.0.1 --directory /Users/axel/Developer/Moxwold/moxwold-site
+node --test tests/site.test.mjs
+```
+
+Reuse the existing preview server if it is running. No audio playback is enabled.

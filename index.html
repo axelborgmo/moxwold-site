@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>MOXWOLD — Software &amp; Technology Consulting from Oslo</title>
-<meta name="description" content="Moxwold AS is an independent Norwegian technology company building software and digital products, and providing technology consulting from Oslo.">
+<title>MOXWOLD — Software &amp; Music from Oslo</title>
+<meta name="description" content="Moxwold AS is an independent Norwegian technology and music company building software and digital products, producing music, and providing consulting from Oslo.">
 <link rel="canonical" href="https://moxwold.com/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +18,7 @@
   "url": "https://moxwold.com/",
   "sameAs": "https://virksomhet.brreg.no/nb/oppslag/enheter/935872200",
   "email": "hello@moxwold.com",
-  "description": "Independent Norwegian technology company building software and digital products, and providing technology consulting.",
+  "description": "Independent Norwegian technology and music company building software and digital products, producing music, and providing consulting.",
   "identifier": {
     "@type": "PropertyValue",
     "propertyID": "Norwegian organization number",
@@ -71,6 +71,7 @@
   .stage{position:fixed;inset:0;display:grid;place-items:center;z-index:4;padding:0 var(--pad);}
   .mark-wrap{position:relative;text-align:center;}
   #mark{
+    border:0;background:transparent;padding:0;
     font-family:"Anybody",system-ui,sans-serif;
     font-weight:760;
     font-size:clamp(54px,16.5vw,260px);
@@ -129,7 +130,8 @@
     .cursor{ display:none; }
   }
   @media (prefers-reduced-motion:reduce){
-    .grain{display:none;}
+    .grain,.cursor{display:none;}
+    body{cursor:auto;}
   }
 </style>
 </head>
@@ -148,10 +150,10 @@
 
   <main class="stage">
     <div class="mark-wrap">
-      <h1 id="mark" aria-label="MOXWOLD">MOXWOLD</h1>
+      <h1 aria-label="MOXWOLD"><button id="mark" type="button" aria-label="Replay Moxwold animation">MOXWOLD</button></h1>
       <div class="sub">
         <span>SOFTWARE</span><span class="dot"></span>
-        <span>CONSULTING</span><span class="dot"></span>
+        <span>MUSIC</span><span class="dot"></span>
         <span>OSLO</span><span class="dot"></span>
         <a href="mailto:hello@moxwold.com">hello<span class="at">@</span>moxwold.com</a>
       </div>
@@ -191,8 +193,7 @@
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
   window.addEventListener("load", measure);
   window.addEventListener("resize", measure, {passive:true});
-  window.addEventListener("orientationchange", ()=>setTimeout(measure,250));
-  setTimeout(measure, 300); setTimeout(measure, 1200);
+  new ResizeObserver(measure).observe(mark);
 
   /* ---- pointer + velocity ---- */
   let mx=-9999, my=-9999, pmx=0, pmy=0, vel=0;
@@ -211,7 +212,7 @@
     mx=e.clientX; my=e.clientY;
     vel=Math.min(80, Math.hypot(mx-pmx,my-pmy));
     pmx=mx; pmy=my; lastMove=now();
-    if(!running){ running=true; requestAnimationFrame(tick); }
+    if(!REDUCED && !running){ running=true; requestAnimationFrame(tick); }
   }
   window.addEventListener("pointermove", onMove, {passive:true});
   window.addEventListener("pointerdown", onMove, {passive:true});
@@ -240,7 +241,6 @@
     const ambientWant = (isTouch || idle) ? 1 : 0;
     ambAmp = lerp(ambAmp, ambientWant, 0.045);
 
-    let active = ambAmp>0.02 || Math.abs(cScale-(nearMark?3.2:1))>0.01 || vel>0.4;
 
     for(let i=0;i<letters.length;i++){
       const L=letters[i];
@@ -279,28 +279,33 @@
       grain.style.transform=`translate(${gx.toFixed(1)}px,${gy.toFixed(1)}px)`;
     }
 
-    if(active){ requestAnimationFrame(tick); } else { running=false; }
+    if(!REDUCED && !document.hidden){ requestAnimationFrame(tick); } else { running=false; }
   }
-  requestAnimationFrame(tick);
-  setInterval(()=>{ if(!running){ running=true; requestAnimationFrame(tick); } }, 1600);
+  if(!REDUCED){ running=true; requestAnimationFrame(tick); }
+  document.addEventListener("visibilitychange", ()=>{
+    if(!document.hidden && !REDUCED && !running){ measure(); running=true; requestAnimationFrame(tick); }
+  });
 
-  /* ---- scramble (latin / symbols only) ---- */
+  /* ---- original symbols, with one musical note per replay ---- */
   const GLYPHS="ØÆÅøæåØÆÅøæå{}()[];:<>=+-*/%&|!^~#";
   let scrambling=false;
   function scramble(){
     const nodes=letters.map(L=>L.node);
+    const noteIndex=Math.floor(Math.random()*nodes.length);
     const queue=nodes.map((n,i)=>({
-      to:WORD[i], node:n,
+      to:WORD[i], node:n, note:i===noteIndex,
       start:Math.floor(Math.random()*16),
       end:Math.floor(Math.random()*16)+18+i*2, char:null
     }));
+    queue[noteIndex].start=0;
+    queue[noteIndex].end=Math.max(...queue.map(q=>q.end));
     let frame=0; scrambling=true;
     (function run(){
       let done=0;
       for(const q of queue){
         if(frame>=q.end){ done++; q.node.textContent=q.to; }
         else if(frame>=q.start){
-          if(!q.char || Math.random()<0.32) q.char=GLYPHS[Math.floor(Math.random()*GLYPHS.length)];
+          if(!q.char || Math.random()<0.32) q.char=q.note ? "♪" : GLYPHS[Math.floor(Math.random()*GLYPHS.length)];
           q.node.textContent=q.char;
         } else { q.node.textContent=""; }
       }
@@ -311,7 +316,7 @@
   if(!REDUCED){ setTimeout(scramble, 220); }
   // tap / click the wordmark to re-scramble (works on touch and desktop)
   let scrTimer=0;
-  mark.addEventListener("pointerdown", ()=>{
+  mark.addEventListener("click", ()=>{
     const n=Date.now(); if(n-scrTimer<700||scrambling) return; scrTimer=n;
     if(!REDUCED) scramble();
   });
