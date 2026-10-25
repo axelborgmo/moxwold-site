@@ -10,6 +10,8 @@ were restored from the repository's baseline, with these requested edits only:
   and its unused animation code are removed. Navigation is light on black.
 - Removed the introductory Moxwold/Established2025 label and repeated footer.
   Company details remain in the company-information section only.
+- Removed the remaining oversized company heading and company/number labels in
+  both page headers. About/Home links stay top-right; legal name remains in facts.
 - Software and music have the same emphasis; the software-development em dash
   is removed. About's cursor gently stretches with motion (maximum1.22×).
 - Services: Software development, Music production, Consulting; no numbers.

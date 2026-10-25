@@ -69,12 +69,10 @@
   /* navigation */
   .site-header{
     position:absolute;top:calc(var(--pad) + 22px);left:calc(var(--pad) + 22px);right:calc(var(--pad) + 22px);
-    z-index:60;display:flex;align-items:center;justify-content:space-between;
+    z-index:60;display:flex;align-items:center;justify-content:flex-end;
     font-size:9px;letter-spacing:.16em;line-height:1;text-transform:uppercase;color:var(--paper);
   }
   .site-header a{text-decoration:none;padding:4px 0;}
-  .wordmark{font-family:"Anybody",system-ui,sans-serif;font-size:15px;font-weight:760;letter-spacing:.02em;}
-  .wordmark small{font:inherit;font-size:8px;vertical-align:top;margin-left:2px;}
   .back{position:relative;}
   .back::after{content:"";position:absolute;right:0;bottom:0;left:0;height:1px;background:currentColor;
                transform:scaleX(0);transform-origin:right;transition:transform .28s ease;}
@@ -97,10 +95,7 @@
   .practice-item p{max-width:620px;font-size:clamp(12px,1.1vw,15px);line-height:1.85;color:var(--paper-muted);}
 
   .company{padding:clamp(110px,14vw,210px) max(var(--pad),8vw);background:var(--paper);color:var(--ink);}
-  .company-head{display:grid;grid-template-columns:minmax(150px,1fr) minmax(0,3.1fr);gap:6vw;}
-  .company h2{font-family:"Anybody",system-ui,sans-serif;font-size:clamp(54px,9vw,142px);font-weight:750;
-              font-variation-settings:"wght" 750,"wdth" 85;line-height:.82;letter-spacing:-.04em;text-transform:uppercase;}
-  .facts{margin-top:clamp(70px,10vw,140px);border-top:1px solid var(--ink);}
+  .facts{border-top:1px solid var(--ink);}
   .fact{display:grid;grid-template-columns:minmax(150px,1fr) minmax(0,3.1fr);gap:6vw;padding:20px 0;
         border-bottom:1px solid var(--hair);font-size:clamp(11px,1vw,14px);line-height:1.6;}
   .fact dt{color:var(--muted);}
@@ -127,7 +122,6 @@
 
   @media (max-width:760px){
     .site-header{top:calc(var(--pad) + 19px);left:calc(var(--pad) + 19px);right:calc(var(--pad) + 19px);}
-    .company-head{grid-template-columns:1fr;gap:38px;}
     .intro{min-height:auto;padding-top:110px;padding-bottom:120px;}
     .practice-item{grid-template-columns:1fr;gap:16px;}
     .practice-item p{margin-top:0;}
@@ -158,7 +152,6 @@
   </div>
 
   <header class="site-header">
-    <a class="wordmark" href="../" aria-label="Moxwold home">MOXWOLD<small>AS</small></a>
     <a class="back" href="../">Home&nbsp; ↙</a>
   </header>
 
@@ -185,11 +178,7 @@
       </div>
     </section>
 
-    <section class="company" aria-labelledby="company-title">
-      <div class="company-head">
-        <p class="section-label reveal">Company information</p>
-        <h2 class="reveal" id="company-title">Moxwold AS</h2>
-      </div>
+    <section class="company" aria-label="Company information">
       <div class="facts reveal">
         <dl class="fact"><dt>Legal name</dt><dd>Moxwold AS</dd></dl>
         <dl class="fact"><dt>Entity</dt><dd>Norwegian private limited company</dd></dl>

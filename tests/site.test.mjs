@@ -61,6 +61,10 @@ test('original front-page hierarchy and quiet About navigation remain', async ()
   assert.match(plain(subtitle), /^SOFTWARE MUSIC OSLO hello @ moxwold\.com$/);
   assert.match(subtitle, /href="mailto:hello@moxwold\.com"/);
   assert.match(html, /href="about\/"/);
+  const header = html.match(/<header class="site-meta">([\s\S]*?)<\/header>/)?.[1] ?? '';
+  assert.equal(plain(header), 'About&nbsp; ↗');
+  assert.doesNotMatch(header, /Moxwold|935|registration/i);
+  assert.match(html, /\.site-meta\{[^}]*justify-content:flex-end/);
   for (const page of pages) {
     const source = await read(page);
     assert.ok(!tags(source, 'a').some(a => /(?:^|\/)(?:music|software)(?:\/|$)/.test(a.href ?? '')));
@@ -103,6 +107,12 @@ test('About gives software and music matching emphasis without repeated company 
   const body = html.match(/<body>([\s\S]*?)<script>/)?.[1] ?? '';
   assert.equal((plain(body).match(/935 872 200/g) ?? []).length, 1);
   assert.match(html, /Math\.min\(\.22,/);
+  const header = html.match(/<header class="site-header">([\s\S]*?)<\/header>/)?.[1] ?? '';
+  assert.equal(plain(header), 'Home&nbsp; ↙');
+  assert.match(html, /\.site-header\{[^}]*justify-content:flex-end/);
+  const company = html.match(/<section class="company"[^>]*>([\s\S]*?)<\/section>/)?.[1] ?? '';
+  assert.doesNotMatch(company, /<h2\b|company-head/);
+  assert.match(company, /<dt>Legal name<\/dt><dd>Moxwold AS<\/dd>/);
 });
 
 test('local links and assets resolve, and sitemap exposes only home and About', async () => {
