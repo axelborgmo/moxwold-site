@@ -89,7 +89,7 @@ test('About remains company-focused with ordered practices and baseline colors',
   const services = [...practice.matchAll(/<article\b[^>]*>([\s\S]*?)<\/article>/g)].map(m => plain(m[1]));
   assert.equal(services[0], 'Software development Web, mobile and backend products from early prototypes to maintained production systems.');
   assert.equal(services[1], 'Music production Guitar recording and music production.');
-  assert.equal(services[2], 'Consulting Strategy, technical direction and production advice for software and music projects.');
+  assert.equal(services[2], 'Consulting Strategy, technical direction, hands-on software development and music production.');
   for (const [variable, color] of [['paper', '#F2EFE6'], ['ink', '#121212'], ['mag', '#EC008C'], ['cyan', '#00AEEF']]) {
     assert.ok(html.includes(`--${variable}:${color};`));
   }
