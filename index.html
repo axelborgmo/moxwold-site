@@ -7,6 +7,22 @@
 <meta name="description" content="Moxwold AS is an independent Norwegian technology and music company building software and digital products, producing music, and providing consulting from Oslo.">
 <link rel="canonical" href="https://moxwold.com/">
 <link rel="icon" href="favicon.png" type="image/png" sizes="96x96">
+<link rel="apple-touch-icon" href="apple-touch-icon.png" sizes="180x180">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MOXWOLD">
+<meta property="og:url" content="https://moxwold.com/">
+<meta property="og:title" content="MOXWOLD — Software &amp; Music from Oslo">
+<meta property="og:description" content="Moxwold AS is an independent Norwegian technology and music company building software and digital products, producing music, and providing consulting from Oslo.">
+<meta property="og:image" content="https://moxwold.com/share.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="MOXWOLD — Software &amp; Music from Oslo">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="MOXWOLD — Software &amp; Music from Oslo">
+<meta name="twitter:description" content="Moxwold AS is an independent Norwegian technology and music company building software and digital products, producing music, and providing consulting from Oslo.">
+<meta name="twitter:image" content="https://moxwold.com/share.png">
+<meta name="twitter:image:alt" content="MOXWOLD — Software &amp; Music from Oslo">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@75..150,100..900&amp;family=Space+Mono:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet">
@@ -14,6 +30,8 @@
 {
   "@context": "https://schema.org",
   "@type": "Organization",
+  "@id": "https://moxwold.com/#organization",
+  "logo": "https://moxwold.com/apple-touch-icon.png",
   "name": "Moxwold AS",
   "legalName": "Moxwold AS",
   "url": "https://moxwold.com/",
@@ -30,6 +48,16 @@
     "addressLocality": "Oslo",
     "addressCountry": "NO"
   }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": "https://moxwold.com/#website",
+  "name": "MOXWOLD",
+  "url": "https://moxwold.com/",
+  "publisher": { "@id": "https://moxwold.com/#organization" }
 }
 </script>
 <style>
@@ -55,7 +83,6 @@
     -webkit-font-smoothing:antialiased;
     text-rendering:optimizeLegibility;
     overscroll-behavior:none;
-    touch-action:none;
   }
   /* ---------- crop marks ---------- */
   .frame{position:fixed;inset:0;z-index:5;pointer-events:none;}
@@ -227,6 +254,17 @@
   const grain=document.getElementById("grain");
   let gx=0, gy=0;
 
+  // Keep the same animation, but do not rewrite identical serialized styles.
+  const styles = new WeakMap();
+  function updateStyle(node, name, value){
+    let previous = styles.get(node);
+    if(!previous){ previous={}; styles.set(node, previous); }
+    if(previous[name] !== value){
+      node.style[name]=value;
+      previous[name]=value;
+    }
+  }
+
   function tick(){
     const t0 = now();
     cx=lerp(cx,mx<-9000?window.innerWidth/2:mx,0.18);
@@ -235,7 +273,7 @@
     let nearMark=false;
     for(const L of letters){ if(Math.hypot(mx-L.cx,my-L.cy)<RADIUS*0.7){ nearMark=true; break; } }
     cScale=lerp(cScale, nearMark?3.2:1, 0.12);
-    cursor.style.transform=`translate(${cx}px,${cy}px) translate(-50%,-50%) scale(${cScale})`;
+    updateStyle(cursor, "transform", `translate(${cx}px,${cy}px) translate(-50%,-50%) scale(${cScale})`);
 
     vel*=0.9;
     const velN=Math.min(1, vel/55);
@@ -266,20 +304,20 @@
       L.cur.y  = lerp(L.cur.y , L.tar.y , 0.18);
       L.cur.ab = lerp(L.cur.ab, L.tar.ab, 0.2);
 
-      L.node.style.fontVariationSettings=`"wght" ${L.cur.w|0},"wdth" ${L.cur.wd.toFixed(1)}`;
-      L.node.style.transform=`translate(${L.cur.x.toFixed(2)}px,${L.cur.y.toFixed(2)}px)`;
+      updateStyle(L.node, "fontVariationSettings", `"wght" ${L.cur.w|0},"wdth" ${L.cur.wd.toFixed(1)}`);
+      updateStyle(L.node, "transform", `translate(${L.cur.x.toFixed(2)}px,${L.cur.y.toFixed(2)}px)`);
       const a=L.cur.ab;
-      L.node.style.textShadow = a>0.15
+      updateStyle(L.node, "textShadow", a>0.15
         ? `${a.toFixed(2)}px 0 0 var(--mag), ${(-a).toFixed(2)}px 0 0 var(--cyan)`
-        : "none";
+        : "none");
     }
 
-    mark.style.letterSpacing = (-0.01 + velN*0.04).toFixed(4)+"em";
+    updateStyle(mark, "letterSpacing", (-0.01 + velN*0.04).toFixed(4)+"em");
 
     if(!REDUCED){
       gx=lerp(gx,(mx<-9000?0:(mx/window.innerWidth-0.5))*30,0.05);
       gy=lerp(gy,(my<-9000?0:(my/window.innerHeight-0.5))*30,0.05);
-      grain.style.transform=`translate(${gx.toFixed(1)}px,${gy.toFixed(1)}px)`;
+      updateStyle(grain, "transform", `translate(${gx.toFixed(1)}px,${gy.toFixed(1)}px)`);
     }
 
     if(!REDUCED && !document.hidden){ requestAnimationFrame(tick); } else { running=false; }

@@ -32,24 +32,132 @@ test('three company pages have metadata, valid inline JavaScript and organizatio
     assert.equal([...html.matchAll(/<h1\b/gi)].length, 1);
     assert.match(html, /<main\b/);
     let organizations = 0;
+    let websites = 0;
     for (const script of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
       if (attrs(script[1]).type === 'application/ld+json') {
         const data = JSON.parse(script[2]);
-        assert.equal(data['@type'], 'Organization');
-        assert.equal(data.name, 'Moxwold AS');
         assert.equal(data.url, 'https://moxwold.com/');
-        organizations++;
+        if (data['@type'] === 'WebSite') {
+          assert.equal(page, 'index.html');
+          assert.equal(data.name, 'MOXWOLD');
+          assert.equal(data.publisher['@id'], 'https://moxwold.com/#organization');
+          websites++;
+        } else {
+          assert.equal(data['@type'], 'Organization');
+          assert.equal(data.name, 'Moxwold AS');
+          assert.equal(data['@id'], 'https://moxwold.com/#organization');
+          assert.equal(data.logo, 'https://moxwold.com/apple-touch-icon.png');
+          organizations++;
+        }
       } else {
         new vm.Script(script[2], { filename: page });
         assert.doesNotMatch(script[2], /\bsetInterval\s*\(/);
       }
     }
     assert.equal(organizations, 1);
+    assert.equal(websites, page === 'index.html' ? 1 : 0);
     assert.doesNotMatch(html, /\b(?:Axel|NYU|Embody|research)\b|Yu(?:&amp;|&)Me/i);
     assert.doesNotMatch(html, /class=["'][^"']*\bnumber\b/);
     assert.doesNotMatch(html, /hands-on technology consulting|technology consulting/i);
   }
   assert.equal(titles.size, 3);
+});
+
+test('each page has a complete social card, with the same title and canonical URL', async () => {
+  for (const [name, width, height] of [['share.png', 1200, 630], ['apple-touch-icon.png', 180, 180]]) {
+    const image = await readFile(path.join(root, name));
+    assert.equal(image.subarray(0, 8).toString('hex'), '89504e470d0a1a0a');
+    assert.deepEqual([image.readUInt32BE(16), image.readUInt32BE(20)], [width, height]);
+  }
+  for (const page of pages) {
+    const html = await read(page);
+    const head = html.match(/<head>([\s\S]*?)<\/head>/i)?.[1] ?? '';
+    const title = head.match(/<title>(.*?)<\/title>/)?.[1];
+    const metadata = new Map(tags(head, 'meta').map(a => [a.property ?? a.name, a.content]));
+    const links = tags(head, 'link');
+    assert.equal(metadata.get('og:site_name'), 'MOXWOLD');
+    assert.equal(metadata.get('og:type'), 'website');
+    assert.equal(metadata.get('og:url'), links.find(a => a.rel === 'canonical').href);
+    assert.equal(metadata.get('og:title'), title);
+    assert.equal(metadata.get('og:description'), metadata.get('description'));
+    assert.equal(metadata.get('og:image'), 'https://moxwold.com/share.png');
+    assert.equal(metadata.get('og:image:type'), 'image/png');
+    assert.equal(metadata.get('og:image:width'), '1200');
+    assert.equal(metadata.get('og:image:height'), '630');
+    assert.ok(metadata.get('og:image:alt'));
+    assert.equal(metadata.get('twitter:card'), 'summary_large_image');
+    for (const key of ['title', 'description', 'image', 'image:alt']) {
+      assert.equal(metadata.get(`twitter:${key}`), metadata.get(`og:${key}`));
+    }
+    const touchIcon = links.find(a => a.rel === 'apple-touch-icon');
+    assert.equal(touchIcon.sizes, '180x180');
+    assert.equal(target(page, touchIcon.href), path.join(root, 'apple-touch-icon.png'));
+  }
+});
+
+test('home permits native zoom and avoids redundant style writes without changing animation output', async t => {
+  const html = await read('index.html');
+  assert.doesNotMatch(html, /touch-action\s*:\s*none|user-scalable\s*=\s*no/);
+  const code = html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
+  assert.ok(code);
+
+  function simulate(source, { touch, reduced }) {
+    let writes = 0;
+    let now = 0;
+    const pending = [];
+    const listeners = new Map();
+    const nodes = [];
+    const node = () => {
+      const values = {};
+      const id = nodes.length;
+      const element = {
+        values, children: [], textContent: '',
+        style: new Proxy(values, {
+          set(object, key, value) { writes++; object[key] = value; return true; },
+        }),
+        appendChild(child) { this.children.push(child); },
+        addEventListener() {},
+        getBoundingClientRect() { return { left: 160 + id * 45, top: 200, width: 45, height: 60 }; },
+      };
+      nodes.push(element);
+      return element;
+    };
+    const ids = Object.fromEntries(['mark', 'cursor', 'grain'].map(id => [id, node()]));
+    const context = {
+      document: { hidden: false, getElementById: id => ids[id], createElement: node, addEventListener() {} },
+      window: {
+        matchMedia: query => ({ matches: query.includes('reduced-motion') ? reduced : touch }),
+        performance: true, innerWidth: 800, innerHeight: 600,
+        addEventListener: (event, callback) => listeners.set(event, callback),
+      },
+      performance: { now: () => now },
+      ResizeObserver: class { constructor(callback) { this.callback = callback; } observe() { this.callback(); } },
+      requestAnimationFrame: callback => pending.push(callback),
+      setTimeout() {}, // The existing wordmark replay is tested independently.
+    };
+    vm.runInNewContext(source, context);
+    const frames = [];
+    for (let i = 0; i < 210; i++) {
+      now = i * 16;
+      if (i >= 42 && i < 78) listeners.get('pointermove')({ clientX: 220 + i * 2, clientY: 224 });
+      if (touch && i === 78) listeners.get('pointerup')({ pointerType: 'touch' });
+      for (const callback of pending.splice(0)) callback();
+      frames.push(nodes.map(element => ({ ...element.values })));
+    }
+    return { writes, frames };
+  }
+
+  const uncached = code.replace(/  function updateStyle\(node, name, value\)\{[\s\S]*?\n  \}/,
+    '  function updateStyle(node, name, value){ node.style[name] = value; }');
+  assert.notEqual(uncached, code);
+  for (const touch of [false, true]) {
+    const baseline = simulate(uncached, { touch, reduced: false });
+    const candidate = simulate(code, { touch, reduced: false });
+    assert.deepEqual(candidate.frames, baseline.frames);
+    assert.ok(candidate.writes < baseline.writes);
+    t.diagnostic(`${touch ? 'touch' : 'mouse'}: ${baseline.writes} → ${candidate.writes} style assignments across 210 simulated frames; same output`);
+  }
+  assert.equal(simulate(code, { touch: false, reduced: true }).writes, 0);
 });
 
 test('each page declares the same square PNG favicon in its head', async () => {
