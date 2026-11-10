@@ -52,6 +52,25 @@ test('three company pages have metadata, valid inline JavaScript and organizatio
   assert.equal(titles.size, 3);
 });
 
+test('each page declares the same square PNG favicon in its head', async () => {
+  const iconPath = path.join(root, 'favicon.png');
+  const image = await readFile(iconPath);
+  assert.equal(image.subarray(0, 8).toString('hex'), '89504e470d0a1a0a');
+  assert.equal(image.toString('ascii', 12, 16), 'IHDR');
+  assert.equal(image.readUInt32BE(16), 96);
+  assert.equal(image.readUInt32BE(20), 96);
+  for (const page of pages) {
+    const html = await read(page);
+    const head = html.match(/<head>([\s\S]*?)<\/head>/i)?.[1] ?? '';
+    const icons = tags(head, 'link').filter(a => a.rel === 'icon');
+    assert.equal(icons.length, 1, page);
+    const [icon] = icons;
+    assert.equal(target(page, icon.href), iconPath);
+    assert.equal(icon.type, 'image/png');
+    assert.equal(icon.sizes, '96x96');
+  }
+});
+
 test('original front-page hierarchy and quiet About navigation remain', async () => {
   const html = await read('index.html');
   assert.match(html, /<main class="stage">/);
